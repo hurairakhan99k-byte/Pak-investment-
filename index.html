@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Metro Profit - Smart Wealth App</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap');
+    
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(180deg, #fff9db 0%, #fffdf0 100%);
+      color: #3b2800;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Animated Gold Auth Glow & Floating Orbs */
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1) translateY(0px); opacity: 0.7; }
+      50% { transform: scale(1.08) translateY(-8px); opacity: 0.95; }
+    }
+    @keyframes floatCoin {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(6deg); }
+    }
+    @keyframes slideCardUp {
+      from { opacity: 0; transform: translateY(18px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .auth-bg-blob {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(48px);
+      pointer-events: none;
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    .auth-card-anim {
+      animation: slideCardUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .floating-coin-badge {
+      animation: floatCoin 3.5s ease-in-out infinite;
+    }
+
+    /* 3D Glossy Yellow & Gold Buttons / Cards */
+    .metro-card-gold {
+      background: linear-gradient(180deg, #ffe259 0%, #ffa751 100%);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 10px 22px -4px rgba(234, 140, 14, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(180, 83, 9, 0.3);
+    }
+
+    .metro-btn-box {
+      background: linear-gradient(180deg, #fff3a1 0%, #ffc93c 100%);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 8px 16px -3px rgba(217, 119, 6, 0.35), inset 0 2px 4px #ffffff, inset 0 -2px 4px rgba(180, 83, 9, 0.25);
+    }
+
+    .metro-white-card {
+      background: #ffffff;
+      border: 1.5px solid rgba(253, 224, 71, 0.5);
+      box-shadow: 0 6px 18px -3px rgba(202, 138, 4, 0.15), inset 0 1px 0 #ffffff;
+    }
+
+    /* Folded corner tab card like screenshot */
+    .folder-card {
+      background: linear-gradient(180deg, #ffdb4d 0%, #f59e0b 100%);
+      border-radius: 18px 24px 18px 18px;
+      box-shadow: 0 8px 18px -4px rgba(217, 119, 6, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.8);
+      position: relative;
+    }
+
+    .folder-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 48px;
+      height: 18px;
+      background: #ffea79;
+      border-radius: 12px 12px 0 0;
+      transform: translateY(-8px);
+      box-shadow: 0 -2px 5px rgba(217, 119, 6, 0.15);
+    }
+
+    .folder-card-inner {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Bottom Navigation Bar like Screenshot */
+    .metro-nav-bar {
+      background: linear-gradient(180deg, #ffe066 0%, #f59e0b 100%);
+      border-top: 2px solid #ffffff;
+      box-shadow: 0 -8px 25px rgba(217, 119, 6, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.85);
+      border-radius: 28px 28px 0 0;
+    }
+
+    .nav-active-pill {
+      border-bottom: 3px solid #78350f;
+    }
+  </style>
+</head>
+<body class="pb-28">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none"></div>
+
+  <!-- AUTH PORTAL (LOGIN & REGISTER SCREEN) -->
+  <div id="auth-screen" class="fixed inset-0 z-50 bg-gradient-to-br from-[#fff7c2] via-[#fffdf0] to-[#fde68a] overflow-y-auto px-4 py-6 flex flex-col items-center justify-center hidden relative">
+    <!-- Ambient Animated Background Lights -->
+    <div class="auth-bg-blob w-72 h-72 bg-amber-300/60 -top-10 -left-10"></div>
+    <div class="auth-bg-blob w-64 h-64 bg-yellow-400/50 -bottom-10 -right-10" style="animation-delay: 2.5s;"></div>
+
+    <div class="w-full max-w-sm space-y-4 relative z-10 auth-card-anim">
+      <!-- App Brand Logo & Floating Coin -->
+      <div class="text-center space-y-1.5">
+        <div class="relative w-20 h-20 mx-auto">
+          <div class="w-20 h-20 rounded-3xl metro-card-gold flex items-center justify-center text-4xl shadow-xl floating-coin-badge">
+            🪙
+          </div>
+          <span class="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border-2 border-white shadow">
+            SECURE
+          </span>
+        </div>
+        <h1 class="text-2xl font-black text-amber-950 tracking-tight flex items-center justify-center gap-1.5">
+          <span>Metro Profit</span>
+          <span class="text-[10px] bg-amber-300/80 text-amber-950 px-2 py-0.5 rounded-full border border-amber-400 font-extrabold uppercase">VIP</span>
+        </h1>
+        <p class="text-xs text-amber-900/80 font-bold">Smart Wealth & Daily Profit Network</p>
+      </div>
+
+      <!-- Auth Card Container -->
+      <div class="metro-white-card rounded-3xl p-5 shadow-2xl space-y-4 border-2 border-amber-300 backdrop-blur-sm bg-white/95">
+        <!-- Interactive Sliding Tabs (Register / Login) -->
+        <div class="relative grid grid-cols-2 gap-1 bg-stone-100 p-1.5 rounded-2xl border border-stone-200">
+          <button id="auth-tab-register" type="button" onclick="switchAuthMode('register')" class="py-2.5 text-xs font-black rounded-xl bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 shadow-md transition-all duration-300 flex items-center justify-center gap-1.5">
+            <i class="ph-bold ph-user-plus text-sm"></i>
+            <span>Register</span>
+          </button>
+          <button id="auth-tab-login" type="button" onclick="switchAuthMode('login')" class="py-2.5 text-xs font-black rounded-xl text-stone-600 transition-all duration-300 hover:text-stone-900 flex items-center justify-center gap-1.5">
+            <i class="ph-bold ph-sign-in text-sm"></i>
+            <span>Sign In</span>
+          </button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <form id="form-register" onsubmit="handleRegisterSubmit(event)" class="space-y-3">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-black text-stone-700">Your Full Name *</label>
+              <span id="name-live-preview" class="text-[10px] text-amber-800 font-mono font-bold"></span>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-stone-400 text-sm"><i class="ph-bold ph-user"></i></span>
+              <input type="text" id="reg-name" required oninput="previewUsernameSlug(this.value)" placeholder="e.g. Shahzad Khan" class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-amber-950 outline-none focus:border-amber-500 focus:bg-white transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-black text-stone-700 block mb-1">Mobile Number *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-stone-400 text-sm"><i class="ph-bold ph-phone"></i></span>
+              <input type="tel" id="reg-phone" required placeholder="03xx-xxxxxxx" class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs font-mono font-bold text-stone-800 outline-none focus:border-amber-500 focus:bg-white transition">
+            </div>
+          </div>
+
+          <!-- Sponsor / Inviter Tag -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-black text-stone-700">Invited By (Referral Sponsor)</label>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded font-bold">Verified Link</span>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-amber-600 text-sm"><i class="ph-bold ph-link-simple-horizontal"></i></span>
+              <input type="text" id="reg-refby" placeholder="usman" class="w-full bg-amber-50/90 border border-amber-300 rounded-xl pl-9 pr-20 py-2.5 text-xs font-black text-amber-950 outline-none">
+              <span class="absolute right-2.5 top-2.5 text-[10px] bg-amber-200/90 text-amber-900 px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1">
+                <i class="ph-bold ph-check-circle"></i> Linked
+              </span>
+            </div>
+          </div>
+
+          <!-- Password with Show/Hide Toggle -->
+          <div>
+            <label class="text-[11px] font-black text-stone-700 block mb-1">Create Password *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-stone-400 text-sm"><i class="ph-bold ph-lock-key"></i></span>
+              <input type="password" id="reg-password" required placeholder="Min 6 characters" class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-10 py-2.5 text-xs font-bold text-stone-800 outline-none focus:border-amber-500 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('reg-password', 'reg-eye-icon')" class="absolute right-3 top-3 text-stone-400 hover:text-stone-700 text-sm">
+                <i id="reg-eye-icon" class="ph-bold ph-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Terms Checkbox -->
+          <div class="flex items-center gap-2 pt-0.5">
+            <input type="checkbox" id="reg-terms" checked required class="w-3.5 h-3.5 accent-amber-500 rounded cursor-pointer">
+            <label for="reg-terms" class="text-[10px] text-stone-600 cursor-pointer font-semibold">
+              I agree to the <span class="text-amber-800 underline font-bold">Terms & 80-Days Yield Agreement</span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full metro-card-gold py-3 rounded-2xl text-xs font-black text-amber-950 shadow-md active:scale-95 hover:brightness-105 transition mt-2 flex items-center justify-center gap-1.5">
+            <span>Register & Start Earning</span>
+            <i class="ph-bold ph-arrow-right text-sm"></i>
+          </button>
+        </form>
+
+        <!-- LOGIN FORM -->
+        <form id="form-login" onsubmit="handleLoginSubmit(event)" class="space-y-3 hidden">
+          <div>
+            <label class="text-[11px] font-black text-stone-700 block mb-1">Your Full Name or Phone *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-stone-400 text-sm"><i class="ph-bold ph-user"></i></span>
+              <input type="text" id="login-identifier" required placeholder="Enter registered name or phone" class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-amber-950 outline-none focus:border-amber-500 focus:bg-white transition">
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-[11px] font-black text-stone-700">Password *</label>
+              <button type="button" onclick="handleForgotPassword()" class="text-[10px] text-amber-800 hover:underline font-bold">Forgot?</button>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-3 text-stone-400 text-sm"><i class="ph-bold ph-lock-key"></i></span>
+              <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-10 py-2.5 text-xs font-bold text-stone-800 outline-none focus:border-amber-500 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('login-password', 'login-eye-icon')" class="absolute right-3 top-3 text-stone-400 hover:text-stone-700 text-sm">
+                <i id="login-eye-icon" class="ph-bold ph-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember me checkbox -->
+          <div class="flex items-center justify-between text-[11px] text-stone-600">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="login-remember" checked class="w-3.5 h-3.5 accent-amber-500 rounded">
+              <span class="font-medium text-[10px]">Remember this device</span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full metro-card-gold py-3 rounded-2xl text-xs font-black text-amber-950 shadow-md active:scale-95 hover:brightness-105 transition mt-2 flex items-center justify-center gap-1.5">
+            <span>Secure Login</span>
+            <i class="ph-bold ph-arrow-right text-sm"></i>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Trust note & Regulatory Footprint -->
+      <div class="text-center text-[10px] text-stone-500 space-y-1">
+        <p class="font-semibold text-stone-600 flex items-center justify-center gap-1">
+          <i class="ph-bold ph-shield-check text-emerald-600"></i> 256-bit Secure Banking Encryption
+        </p>
+        <p class="text-stone-400">SECP Registered Financial Intermediary System</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP APP HEADER -->
+  <header class="w-full max-w-md mx-auto px-4 pt-3 pb-2 flex items-center justify-between">
+    <!-- 3D Hamburger Menu Button -->
+    <button onclick="toggleSideMenu()" class="w-12 h-12 rounded-2xl metro-btn-box flex flex-col items-center justify-center gap-1 active:scale-95 transition">
+      <span class="w-5 h-0.5 bg-amber-900 rounded-full"></span>
+      <span class="w-5 h-0.5 bg-amber-900 rounded-full"></span>
+      <span class="w-5 h-0.5 bg-amber-900 rounded-full"></span>
+    </button>
+
+    <!-- App Title -->
+    <div class="text-center select-none">
+      <h1 class="text-xl font-extrabold text-amber-950 tracking-tight flex items-center justify-center gap-1">
+        <span>Metro Profit</span>
+        <span id="admin-badge" class="hidden text-[9px] bg-rose-600 text-white font-black px-1.5 py-0.2 rounded-md shadow-sm">ADMIN</span>
+      </h1>
+    </div>
+
+    <!-- Welcome User Badge with 3D Avatar -->
+    <div onclick="promptSwitchUser()" class="flex items-center gap-2 cursor-pointer active:scale-95 transition">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-b from-amber-200 to-amber-500 border-2 border-white shadow-md flex items-center justify-center text-amber-950 text-xl font-bold">
+        👤
+      </div>
+      <div class="text-left leading-tight">
+        <span class="text-[10px] text-amber-800 font-semibold block">Welcome</span>
+        <span id="header-username" class="text-xs font-black text-amber-950 block">hurairakhan</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW -->
+  <main class="w-full max-w-md mx-auto px-4 space-y-3.5 mt-1">
+
+    <!-- 1. USER PROFILE CARD (Username & Ref By) -->
+    <div class="metro-white-card rounded-2xl p-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- 3D Gold Avatar -->
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-200 border-2 border-white shadow-md flex items-center justify-center text-2xl">
+          🧑‍💼
+        </div>
+        <div class="space-y-0.5">
+          <span class="text-[11px] text-stone-500 font-semibold block">Username</span>
+          <span id="card-username" class="text-sm font-black text-stone-900">hurairakhan</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-right space-y-0.5">
+          <span class="text-[11px] text-stone-500 font-semibold block">Ref By</span>
+          <span id="card-ref-by" class="text-sm font-black text-stone-900">usman</span>
+        </div>
+        <i class="ph-bold ph-caret-right text-stone-400 text-lg"></i>
+      </div>
+    </div>
+
+    <!-- 2. TOTAL BALANCE 3D GOLD CARD -->
+    <div class="metro-card-gold rounded-3xl p-5 flex items-center justify-between relative overflow-hidden">
+      <div class="flex items-center gap-4">
+        <!-- 3D Gold Wallet Icon -->
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-200 via-amber-400 to-amber-600 border-2 border-white/80 shadow-lg flex items-center justify-center text-3xl">
+          👛
+        </div>
+        <div>
+          <span class="text-xs font-bold text-amber-950/80 uppercase tracking-wider block">Total Balance</span>
+          <div class="flex items-baseline">
+            <span id="display-balance" class="text-2xl font-black text-amber-950 tracking-tight">0.00</span>
+            <span class="text-base font-black text-amber-950 ml-0.5">Rs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Eye Toggle Button -->
+      <button onclick="toggleBalanceVisibility()" class="w-11 h-11 rounded-full bg-white/30 hover:bg-white/40 border border-white/60 flex items-center justify-center text-amber-950 text-xl shadow-inner transition active:scale-90">
+        <i id="eye-icon" class="ph-bold ph-eye"></i>
+      </button>
+    </div>
+
+    <!-- 3. 4 ROUNDED 3D QUICK ACTIONS (Deposit, Withdraw, Team, My Plans) -->
+    <div class="grid grid-cols-4 gap-2.5 pt-1">
+      <!-- Deposit -->
+      <button onclick="handleDepositClick()" class="metro-btn-box rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition">
+        <div class="w-11 h-11 flex items-center justify-center text-3xl">
+          💼
+        </div>
+        <span class="text-xs font-extrabold text-amber-950">Deposit</span>
+      </button>
+
+      <!-- Withdraw -->
+      <button onclick="handleWithdrawClick()" class="metro-btn-box rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition">
+        <div class="w-11 h-11 flex items-center justify-center text-3xl">
+          🪙
+        </div>
+        <span class="text-xs font-extrabold text-amber-950">Withdraw</span>
+      </button>
+
+      <!-- Team -->
+      <button onclick="switchTab('referral-tab')" class="metro-btn-box rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition">
+        <div class="w-11 h-11 flex items-center justify-center text-3xl">
+          👥
+        </div>
+        <span class="text-xs font-extrabold text-amber-950">Team</span>
+      </button>
+
+      <!-- My Plans -->
+      <button onclick="switchTab('myplans-tab')" class="metro-btn-box rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition">
+        <div class="w-11 h-11 flex items-center justify-center text-3xl">
+          📑
+        </div>
+        <span class="text-xs font-extrabold text-amber-950">My Plans</span>
+      </button>
+    </div>
+
+    <!-- 4. THREE FOLDER STAT CARDS (Total Investment, Total Withdraw, Refer Bonus) -->
+    <div class="grid grid-cols-3 gap-2.5 pt-2">
+      <!-- Total Investment -->
+      <div class="folder-card p-2 text-center pt-3 flex flex-col justify-between h-36">
+        <div class="w-9 h-9 mx-auto flex items-center justify-center text-2xl">
+          📈
+        </div>
+        <div class="folder-card-inner py-2 px-1">
+          <span class="text-[9px] font-bold text-stone-500 block leading-tight">Total Investment</span>
+          <span id="stat-total-invest" class="text-xs font-black text-stone-900 block mt-0.5">0.00Rs</span>
+        </div>
+      </div>
+
+      <!-- Total Withdraw -->
+      <div class="folder-card p-2 text-center pt-3 flex flex-col justify-between h-36">
+        <div class="w-9 h-9 mx-auto flex items-center justify-center text-2xl">
+          🤲
+        </div>
+        <div class="folder-card-inner py-2 px-1">
+          <span class="text-[9px] font-bold text-stone-500 block leading-tight">Total Withdraw</span>
+          <span id="stat-total-withdraw" class="text-xs font-black text-stone-900 block mt-0.5">0.00Rs</span>
+        </div>
+      </div>
+
+      <!-- Refer Bonus -->
+      <div class="folder-card p-2 text-center pt-3 flex flex-col justify-between h-36">
+        <div class="w-9 h-9 mx-auto flex items-center justify-center text-2xl">
+          🎁
+        </div>
+        <div class="folder-card-inner py-2 px-1">
+          <span class="text-[9px] font-bold text-stone-500 block leading-tight">Refer Bonus</span>
+          <span id="stat-refer-bonus" class="text-xs font-black text-stone-900 block mt-0.5">0.00Rs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. YOUR REFERRAL LINK CARD -->
+    <div class="metro-white-card rounded-2xl p-3.5 space-y-2">
+      <label class="text-xs font-extrabold text-stone-900 block">Your referral link</label>
+      <div class="flex items-center gap-2">
+        <input type="text" id="referral-link-input" readonly value="https://metroprofit.pro/register/hurairakhan" class="bg-stone-100 border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-700 outline-none w-full font-mono font-medium truncate select-all">
+        <button onclick="copyReferralLink()" class="metro-btn-box px-3.5 py-2 rounded-xl text-xs font-black text-amber-950 flex items-center gap-1 shrink-0 active:scale-95 transition">
+          <i class="ph-bold ph-copy"></i>
+          <span>Copy Link</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. 24H PROFIT COUNTDOWN CLOCK BOX (80 DAYS PLAN) -->
+    <div onclick="openClockDetailsModal()" class="metro-white-card rounded-2xl p-3.5 space-y-2.5 cursor-pointer active:scale-98 transition">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⏱️</span>
+          <div>
+            <h3 class="text-xs font-extrabold text-stone-900">Next Daily Profit Timer</h3>
+            <span class="text-[10px] text-stone-500">Auto-credit every 24 hours</span>
+          </div>
+        </div>
+        <span id="clock-status-badge" class="text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full">
+          No Active Plan
+        </span>
+      </div>
+
+      <!-- Digital 3-box clock -->
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="bg-amber-50 border border-amber-200 p-2 rounded-xl">
+          <span id="timer-hours" class="text-base font-black text-amber-950 font-mono">00</span>
+          <span class="text-[9px] text-stone-500 uppercase font-bold block">Hours</span>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 p-2 rounded-xl">
+          <span id="timer-minutes" class="text-base font-black text-amber-950 font-mono">00</span>
+          <span class="text-[9px] text-stone-500 uppercase font-bold block">Minutes</span>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 p-2 rounded-xl">
+          <span id="timer-seconds" class="text-base font-black text-amber-950 font-mono">00</span>
+          <span class="text-[9px] text-stone-500 uppercase font-bold block">Seconds</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-[11px] pt-1">
+        <span class="text-stone-500">Daily Claim:</span>
+        <button id="claim-btn" onclick="event.stopPropagation(); claimDailyReward();" class="metro-btn-box px-3 py-1 rounded-lg text-xs font-bold text-amber-950 active:scale-95 transition">
+          Claim Profit
+        </button>
+      </div>
+    </div>
+
+    <!-- 7. SUPPORT & VERIFICATION BADGES (Admin, Channel, Install, FBR, SECP) -->
+    <div class="metro-white-card rounded-2xl p-3 space-y-2">
+      <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">Official Support & Credentials</span>
+      <div class="grid grid-cols-5 gap-2 text-center">
+        <button onclick="contactAdminSupport()" class="flex flex-col items-center gap-1 active:scale-95">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg">🎧</div>
+          <span class="text-[10px] font-bold text-stone-700">Admin</span>
+        </button>
+        <button onclick="joinOfficialChannel()" class="flex flex-col items-center gap-1 active:scale-95">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg">📢</div>
+          <span class="text-[10px] font-bold text-stone-700">Channel</span>
+        </button>
+        <button onclick="openModal('install-modal')" class="flex flex-col items-center gap-1 active:scale-95">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg">📲</div>
+          <span class="text-[10px] font-bold text-stone-700">App</span>
+        </button>
+        <button onclick="openVerificationModal('fbr')" class="flex flex-col items-center gap-1 active:scale-95">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg">🏛️</div>
+          <span class="text-[10px] font-bold text-stone-700">FBR</span>
+        </button>
+        <button onclick="openVerificationModal('secp')" class="flex flex-col items-center gap-1 active:scale-95">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg">📜</div>
+          <span class="text-[10px] font-bold text-stone-700">SECP</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 8. INVESTMENT PLANS SECTION -->
+    <div id="plans-tab" class="space-y-3 pt-1">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-black text-amber-950 uppercase tracking-wider">All Investment Plans (80 Days)</h3>
+        <span class="text-[10px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">Daily Return</span>
+      </div>
+      <div id="plans-container" class="space-y-3"></div>
+    </div>
+
+    <!-- 9. ACTIVE PLANS SECTION (HIDDEN TAB) -->
+    <div id="myplans-tab" class="hidden space-y-3 pt-1">
+      <h3 class="text-xs font-black text-amber-950 uppercase tracking-wider">My Active Holdings</h3>
+      <div id="my-plans-container" class="space-y-2"></div>
+    </div>
+
+    <!-- 10. REFERRAL NETWORK SECTION (HIDDEN TAB) -->
+    <div id="referral-tab" class="hidden space-y-3 pt-1">
+      <div class="metro-white-card rounded-2xl p-4 space-y-3 text-center">
+        <h3 class="text-sm font-extrabold text-amber-950">Team Commission Tiers</h3>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl">
+            <span class="text-[10px] text-stone-500 font-bold block">Level 1</span>
+            <span class="text-base font-black text-amber-900 block">10%</span>
+            <span class="text-[9px] text-stone-400">Direct</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl">
+            <span class="text-[10px] text-stone-500 font-bold block">Level 2</span>
+            <span class="text-base font-black text-amber-900 block">5%</span>
+            <span class="text-[9px] text-stone-400">Indirect</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl">
+            <span class="text-[10px] text-stone-500 font-bold block">Level 3</span>
+            <span class="text-base font-black text-amber-900 block">2%</span>
+            <span class="text-[9px] text-stone-400">Community</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. TRANSACTION HISTORY SECTION (HIDDEN TAB) -->
+    <div id="history-tab" class="hidden space-y-3 pt-1">
+      <h3 class="text-xs font-black text-amber-950 uppercase tracking-wider">Transaction Ledger</h3>
+      <div id="transactions-container" class="space-y-2"></div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM FLOATING 3D GOLD NAVIGATION BAR -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 metro-nav-bar py-2.5 px-6 flex justify-between items-center max-w-md mx-auto shadow-2xl">
+    <!-- Home -->
+    <button onclick="switchTab('plans-tab')" class="flex flex-col items-center gap-0.5 text-amber-950 font-black text-[11px] nav-active-pill pb-0.5">
+      <span class="text-2xl drop-shadow-sm">🏠</span>
+      <span>Home</span>
+    </button>
+    <!-- Deposit -->
+    <button onclick="handleDepositClick()" class="flex flex-col items-center gap-0.5 text-amber-900 font-bold text-[11px]">
+      <span class="text-2xl drop-shadow-sm">💼</span>
+      <span>Deposit</span>
+    </button>
+    <!-- Withdraw -->
+    <button onclick="handleWithdrawClick()" class="flex flex-col items-center gap-0.5 text-amber-900 font-bold text-[11px]">
+      <span class="text-2xl drop-shadow-sm">🪙</span>
+      <span>Withdraw</span>
+    </button>
+    <!-- Profit -->
+    <button onclick="openClockDetailsModal()" class="flex flex-col items-center gap-0.5 text-amber-900 font-bold text-[11px]">
+      <span class="text-2xl drop-shadow-sm">📈</span>
+      <span>Profit</span>
+    </button>
+    <!-- Team -->
+    <button onclick="switchTab('referral-tab')" class="flex flex-col items-center gap-0.5 text-amber-900 font-bold text-[11px]">
+      <span class="text-2xl drop-shadow-sm">👥</span>
+      <span>Team</span>
+    </button>
+  </nav>
+
+  <!-- 3-DOTS SIDEBAR DRAWER -->
+  <div id="side-menu-overlay" onclick="toggleSideMenu()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden"></div>
+  <aside id="side-menu-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-white border-r border-amber-200 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between overflow-y-auto">
+    <div class="p-4 border-b border-amber-100 flex items-center justify-between bg-amber-50">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🪙</span>
+        <h2 class="text-sm font-black text-amber-950">Metro Profit Menu</h2>
+      </div>
+      <button onclick="toggleSideMenu()" class="text-stone-400 text-lg p-1">
+        <i class="ph-bold ph-x"></i>
+      </button>
+    </div>
+    <div class="p-3 space-y-1 text-xs font-bold text-stone-700 flex-1">
+      <button onclick="menuAction('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-squares-four text-amber-600"></i> Dashboard
+      </button>
+      <button onclick="menuAction('deposit')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-arrow-down-left text-emerald-600"></i> Deposit
+      </button>
+      <button onclick="menuAction('withdraw')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-arrow-up-right text-rose-600"></i> Withdraw
+      </button>
+      <button onclick="menuAction('buy-plans')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-chart-line-up text-amber-600"></i> Buy Plans
+      </button>
+      <button onclick="menuAction('my-plans')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-briefcase text-amber-600"></i> My Plans
+      </button>
+      <button onclick="menuAction('team')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-users-three text-amber-600"></i> Team Referral
+      </button>
+      <button onclick="menuAction('bonus')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-gift text-amber-600"></i> Daily Bonus
+      </button>
+      <button onclick="menuAction('history')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-receipt text-amber-600"></i> Transaction History
+      </button>
+      <button onclick="menuAction('install-app')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50">
+        <i class="ph-bold ph-download-simple text-amber-600"></i> Install App (APK)
+      </button>
+      <!-- Dedicated Admin Panel Menu Item (Hidden by default, only shown if logged in as admin) -->
+      <button id="admin-menu-btn" onclick="openAdminModalDirect()" class="w-full hidden items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-100/70 text-amber-950 border border-amber-300 mt-2 hover:bg-amber-200 transition">
+        <i class="ph-bold ph-shield-check text-rose-600"></i> Admin Control Panel
+      </button>
+      <button onclick="logoutUser()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-700 hover:bg-rose-50 transition">
+        <i class="ph-bold ph-sign-out text-rose-600"></i> Logout Account
+      </button>
+    </div>
+    <div class="p-3 border-t border-amber-100 text-[10px] text-stone-400 text-center font-mono">
+      Metro Profit v3.0 Official
+    </div>
+  </aside>
+
+  <!-- ADMIN CONTROL CENTER MODAL -->
+  <div id="admin-panel-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <h3 class="text-sm font-black text-stone-900 leading-tight">Admin Control Room</h3>
+            <span class="text-[10px] text-emerald-600 font-bold">Authenticated as Master Admin</span>
+          </div>
+        </div>
+        <button onclick="closeModal('admin-panel-modal')" class="text-stone-400 hover:text-stone-700 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <!-- Quick Balance Adjuster -->
+      <div class="bg-stone-50 border border-stone-200 rounded-2xl p-3.5 space-y-2">
+        <span class="text-[11px] font-black text-stone-700 block">Edit Active User Balance (Rs)</span>
+        <div class="flex gap-2">
+          <input type="number" id="admin-new-bal" placeholder="e.g. 5000" class="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-950 outline-none">
+          <button onclick="adminUpdateBalance()" class="metro-btn-box px-4 py-2 rounded-xl text-xs font-black text-amber-950 active:scale-95 transition shrink-0">
+            Update
+          </button>
+        </div>
+      </div>
+
+      <!-- Pending Manual Deposits List -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-black text-stone-700">Pending Deposit Requests</span>
+          <span id="admin-pending-count" class="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold">1 Pending</span>
+        </div>
+        <div id="admin-deposits-list" class="space-y-2 text-xs">
+          <!-- Dynamic items or demo fallback -->
+          <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-2xl space-y-1.5">
+            <div class="flex justify-between font-bold text-stone-800">
+              <span>Shahzad (VIP 2)</span>
+              <span class="font-mono text-emerald-700">+Rs. 3,000</span>
+            </div>
+            <div class="text-[10px] text-stone-500 font-mono">Trx ID: 84920194821 • Easypaisa</div>
+            <div class="flex gap-2 pt-1">
+              <button onclick="adminApproveDeposit(3000, 'Metro VIP 2')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-xl text-[10px] shadow active:scale-95 transition">
+                ✓ Approve & Activate
+              </button>
+              <button onclick="showToast('Deposit rejected', 'error')" class="px-3 bg-stone-200 text-stone-700 font-bold py-1.5 rounded-xl text-[10px] active:scale-95 transition">
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTERED USERS DATABASE (SAVED LOGIN DATA) -->
+      <div class="space-y-2 pt-2 border-t border-stone-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <i class="ph-bold ph-users text-amber-600 text-sm"></i>
+            <span class="text-[11px] font-black text-stone-800">All Registered Users Database</span>
+          </div>
+          <span id="admin-total-users-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 Users</span>
+        </div>
+        
+        <div id="admin-users-list" class="space-y-2 max-h-56 overflow-y-auto pr-0.5 text-xs">
+          <!-- Dynamically populated with all registered user records -->
+        </div>
+      </div>
+
+      <!-- Quick Action Shortcuts -->
+      <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+        <button onclick="adminAddBonus(500)" class="p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 font-bold hover:bg-amber-100 text-center">
+          +Rs 500 Gift Bonus
+        </button>
+        <button onclick="adminResetAllData()" class="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 font-bold hover:bg-rose-100 text-center">
+          Reset User Data
+        </button>
+      </div>
+
+      <button onclick="closeModal('admin-panel-modal')" class="w-full py-2.5 rounded-2xl bg-stone-900 text-white text-xs font-bold active:scale-95 transition">
+        Exit Admin Panel
+      </button>
+    </div>
+  </div>
+
+  <!-- DEPOSIT MODAL -->
+  <div id="deposit-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl overflow-y-auto max-h-[92vh]">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2.5">
+        <div>
+          <h3 class="text-sm font-black text-amber-950">Deposit & Activate Plan</h3>
+          <span id="dep-card-plan-name" class="text-xs font-bold text-amber-700">Metro VIP 1</span>
+        </div>
+        <button onclick="closeModal('deposit-modal')" class="text-stone-400 hover:text-stone-700 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <!-- Amount Display Card -->
+      <div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-center">
+        <span class="text-[10px] text-stone-500 font-bold block">Amount to Send</span>
+        <span id="dep-amount-display" class="text-xl font-black text-amber-950 font-mono">Rs. 1,000</span>
+      </div>
+
+      <!-- Payment Method Selection -->
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" id="dep-method-easypaisa" onclick="selectDepositMethod('easypaisa')" class="p-2.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 flex flex-col items-center gap-1">
+          <span class="text-xl">🟢</span>
+          <span class="text-xs font-black">Easypaisa</span>
+        </button>
+        <button type="button" id="dep-method-jazzcash" onclick="selectDepositMethod('jazzcash')" class="p-2.5 rounded-2xl border border-stone-300 bg-stone-50 text-stone-700 flex flex-col items-center gap-1">
+          <span class="text-xl">🔴</span>
+          <span class="text-xs font-black">JazzCash</span>
+        </button>
+      </div>
+
+      <!-- Account Details Card -->
+      <div class="bg-stone-50 border border-stone-200 rounded-2xl p-3 space-y-1.5 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-stone-500">Account Title:</span>
+          <span id="dep-acc-title" class="font-black text-amber-950">Abdul Moiz Khan</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-stone-500">Account Number:</span>
+          <div class="flex items-center gap-1">
+            <span id="dep-acc-number" class="font-mono font-black text-stone-900">0313-9371815</span>
+            <button type="button" onclick="copyToClipboard('03139371815')" class="text-amber-700 font-bold ml-1 hover:underline">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deposit Form -->
+      <form onsubmit="handleDepositSubmit(event)" class="space-y-3">
+        <input type="hidden" id="deposit-amount" value="1000">
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Transaction ID (TID / Trx ID) *</label>
+          <input type="text" id="dep-tid" required placeholder="e.g. 84920194821" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-stone-900 outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Upload Screenshot Proof</label>
+          <input type="file" accept="image/*" class="w-full text-xs text-stone-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer">
+        </div>
+        <button type="submit" class="w-full metro-card-gold py-2.5 rounded-2xl text-xs font-black text-amber-950 active:scale-95 transition">
+          Submit Payment Proof
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- WITHDRAW MODAL -->
+  <div id="withdraw-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2.5">
+        <h3 class="text-sm font-black text-amber-950">Withdraw Balance</h3>
+        <button onclick="closeModal('withdraw-modal')" class="text-stone-400 hover:text-stone-700 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleWithdrawSubmit(event)" class="space-y-3">
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Payment Method</label>
+          <select class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 outline-none">
+            <option>Easypaisa</option>
+            <option>JazzCash</option>
+            <option>Bank Transfer</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Account Title</label>
+          <input type="text" required placeholder="Account Holder Name" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 outline-none">
+        </div>
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Account / Mobile Number</label>
+          <input type="text" required placeholder="03xx-xxxxxxx" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-stone-900 outline-none">
+        </div>
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Withdraw Amount (Min: 200 Rs)</label>
+          <input type="number" id="withdraw-amount" min="200" required placeholder="Enter amount" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-950 outline-none">
+        </div>
+        <button type="submit" class="w-full metro-card-gold py-2.5 rounded-2xl text-xs font-black text-amber-950 active:scale-95 transition">
+          Confirm Withdraw
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PLAN REQUIRED WARNING MODAL -->
+  <div id="plan-required-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-rose-300 rounded-3xl max-w-sm w-full p-5 space-y-3 text-center shadow-2xl">
+      <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto">
+        🔒
+      </div>
+      <h3 class="text-sm font-black text-stone-900">Active Plan Required!</h3>
+      <p class="text-xs text-stone-600">You must have at least 1 active VIP investment plan to request withdrawals.</p>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('plan-required-modal')" class="flex-1 py-2 rounded-xl bg-stone-100 text-stone-700 text-xs font-bold">
+          Close
+        </button>
+        <button onclick="closeModal('plan-required-modal'); handleDepositClick();" class="flex-1 metro-card-gold py-2 rounded-xl text-amber-950 text-xs font-black">
+          View Plans
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOCK DETAILS MODAL -->
+  <div id="clock-details-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2">
+        <h3 class="text-sm font-black text-amber-950">Investment Status (80 Days)</h3>
+        <button onclick="closeModal('clock-details-modal')" class="text-stone-400 hover:text-stone-700 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div id="clock-modal-content" class="space-y-2"></div>
+      <button onclick="closeModal('clock-details-modal')" class="w-full py-2 bg-stone-900 text-white text-xs font-bold rounded-xl">
+        Done
+      </button>
+    </div>
+  </div>
+
+  <!-- USER PROFILE EDIT MODAL -->
+  <div id="user-profile-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2">
+        <h3 class="text-sm font-black text-amber-950">Update Profile</h3>
+        <button onclick="closeModal('user-profile-modal')" class="text-stone-400 hover:text-stone-700 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <form onsubmit="handleUserSave(event)" class="space-y-3">
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Your Display Name</label>
+          <input type="text" id="input-modal-username" required class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 outline-none">
+        </div>
+        <div>
+          <label class="text-[11px] font-black text-stone-700 block mb-1">Referral Sponsor (Ref By)</label>
+          <input type="text" id="input-modal-refby" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 outline-none">
+        </div>
+        <button type="submit" class="w-full metro-card-gold py-2.5 rounded-2xl text-xs font-black text-amber-950 active:scale-95 transition">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- INSTALL APP MODAL -->
+  <div id="install-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 space-y-3 text-center shadow-2xl">
+      <div class="text-4xl">📲</div>
+      <h3 class="text-sm font-black text-amber-950">Install Metro Profit APK</h3>
+      <p class="text-xs text-stone-600">Download the Android application package directly to your smartphone for faster daily earnings.</p>
+      <button onclick="showToast('Downloading APK file...', 'info'); closeModal('install-modal');" class="w-full metro-card-gold py-2.5 rounded-2xl text-xs font-black text-amber-950 active:scale-95 transition">
+        Download APK Now (v3.0)
+      </button>
+      <button onclick="closeModal('install-modal')" class="w-full py-2 text-xs text-stone-500 font-bold">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const PLANS_CONFIG = [
+      { id: 'p1', name: 'Metro VIP 1 (Starter)', price: 245, daily: 55, duration: 80, total: 4400 },
+      { id: 'p2', name: 'Metro VIP 2 (Basic)', price: 500, daily: 120, duration: 80, total: 9600 },
+      { id: 'p3', name: 'Metro VIP 3 (Silver)', price: 1000, daily: 260, duration: 80, total: 20800 },
+      { id: 'p4', name: 'Metro VIP 4 (Gold)', price: 2500, daily: 680, duration: 80, total: 54400 },
+      { id: 'p5', name: 'Metro VIP 5 (Platinum)', price: 5000, daily: 1450, duration: 80, total: 116000 },
+      { id: 'p6', name: 'Metro VIP 6 (Diamond)', price: 10000, daily: 3100, duration: 80, total: 248000 },
+      { id: 'p7', name: 'Metro VIP 7 (Crown)', price: 25000, daily: 8200, duration: 80, total: 656000 },
+      { id: 'p8', name: 'Metro VIP 8 (Executive)', price: 50000, daily: 17500, duration: 80, total: 1400000 },
+      { id: 'p9', name: 'Metro VIP 9 (Ambassador)', price: 75000, daily: 28000, duration: 80, total: 2240000 },
+      { id: 'p10', name: 'Metro VIP 10 (Royal Elite)', price: 100000, daily: 40000, duration: 80, total: 3200000 }
+    ];
+
+    let state = {
+      isLoggedIn: localStorage.getItem('mp_logged_in') === 'true',
+      isAdmin: localStorage.getItem('mp_is_admin') === 'true',
+      username: localStorage.getItem('mp_user') || '',
+      refBy: localStorage.getItem('mp_refby') || '',
+      phone: localStorage.getItem('mp_phone') || '',
+      balance: parseFloat(localStorage.getItem('mp_bal') || '0.00'),
+      totalInvest: parseFloat(localStorage.getItem('mp_tin') || '0.00'),
+      totalWithdraw: parseFloat(localStorage.getItem('mp_twi') || '0.00'),
+      referBonus: parseFloat(localStorage.getItem('mp_refb') || '0.00'),
+      activePlans: JSON.parse(localStorage.getItem('mp_plans') || '[]'),
+      isMasked: false,
+      nextClaimTime: parseInt(localStorage.getItem('mp_next_claim') || '0')
+    };
+
+    // Global Saved Users Database in LocalStorage
+    function getStoredUsers() {
+      const stored = localStorage.getItem('mp_registered_users_db');
+      if (!stored) {
+        // Shuru mein koi farzi user nahi hoga (Empty Database)
+        localStorage.setItem('mp_registered_users_db', JSON.stringify([]));
+        return [];
+      }
+      return JSON.parse(stored);
+    }
+
+    function saveUserToDatabase(userObj) {
+      let users = getStoredUsers();
+      // Check if user already exists with this name or phone
+      const existingIdx = users.findIndex(u => u.name.toLowerCase() === userObj.name.toLowerCase() || (userObj.phone && u.phone === userObj.phone));
+      if (existingIdx !== -1) {
+        users[existingIdx] = { ...users[existingIdx], ...userObj };
+      } else {
+        users.unshift(userObj);
+      }
+      localStorage.setItem('mp_registered_users_db', JSON.stringify(users));
+      renderAdminUsersList();
+    }
+
+    function renderAdminUsersList() {
+      const listContainer = document.getElementById('admin-users-list');
+      const badge = document.getElementById('admin-total-users-badge');
+      if (!listContainer) return;
+
+      const users = getStoredUsers();
+      if (badge) badge.innerText = `${users.length} Users`;
+
+      if (users.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-6 bg-stone-50 rounded-2xl border border-dashed border-stone-300">
+            <span class="text-3xl block mb-1">📭</span>
+            <strong class="text-xs text-stone-700 block">No Users Registered Yet</strong>
+            <span class="text-[10px] text-stone-400">Jab koi naya user register karega to uska data yahan show hoga.</span>
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = '';
+      users.forEach((u, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-stone-50 border border-stone-200 rounded-xl p-2.5 space-y-1.5 shadow-sm';
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-full bg-amber-200 text-amber-900 font-black flex items-center justify-center text-[10px]">
+                ${index + 1}
+              </span>
+              <strong class="text-amber-950 font-black text-xs">${u.name}</strong>
+            </div>
+            <span class="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-mono font-bold">
+              Rs. ${(u.balance || 0).toLocaleString()}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-1 text-[10px] text-stone-600 bg-white p-1.5 rounded-lg border border-stone-100">
+            <div><span class="text-stone-400">Phone:</span> <strong class="font-mono text-stone-800">${u.phone || 'N/A'}</strong></div>
+            <div><span class="text-stone-400">Pass:</span> <strong class="font-mono text-rose-700 bg-rose-50 px-1 rounded">${u.password || '••••••'}</strong></div>
+            <div><span class="text-stone-400">Ref By:</span> <strong class="text-amber-900">${u.refBy || 'Direct'}</strong></div>
+            <div><span class="text-stone-400">Joined:</span> <span class="font-mono text-[9px] text-stone-500">${u.registeredAt || 'Recent'}</span></div>
+          </div>
+          <div class="flex gap-1.5 pt-0.5">
+            <button onclick="adminGiveUserBalance('${u.name}', 1000)" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-950 text-[10px] font-bold py-1 rounded-lg transition">
+              +Rs 1,000 Bal
+            </button>
+            <button onclick="adminDeleteUser('${u.name}')" class="px-2 bg-rose-100 hover:bg-rose-200 text-rose-800 text-[10px] font-bold py-1 rounded-lg transition">
+              Delete
+            </button>
+          </div>
+        `;
+        listContainer.appendChild(div);
+      });
+    }
+
+    function adminGiveUserBalance(targetName, amt) {
+      let users = getStoredUsers();
+      const u = users.find(x => x.name.toLowerCase() === targetName.toLowerCase());
+      if (u) {
+        u.balance = (u.balance || 0) + amt;
+        localStorage.setItem('mp_registered_users_db', JSON.stringify(users));
+        if (state.username.toLowerCase() === targetName.toLowerCase()) {
+          state.balance += amt;
+          updateUI();
+        }
+        renderAdminUsersList();
+        showToast(`+Rs. ${amt} added to ${targetName}'s account!`, 'success');
+      }
+    }
+
+    function adminDeleteUser(targetName) {
+      if (confirm(`Are you sure you want to delete user ${targetName}?`)) {
+        let users = getStoredUsers();
+        users = users.filter(x => x.name.toLowerCase() !== targetName.toLowerCase());
+        localStorage.setItem('mp_registered_users_db', JSON.stringify(users));
+        renderAdminUsersList();
+        showToast(`User ${targetName} deleted!`, 'info');
+      }
+    }
+
+    window.onload = function() {
+      // Clear demo fake users if already in localStorage
+      const existingDb = localStorage.getItem('mp_registered_users_db');
+      if (existingDb) {
+        try {
+          const parsed = JSON.parse(existingDb);
+          const filtered = parsed.filter(u => u.name !== 'Shahzad Khan' && u.name !== 'Kaleem Ullah');
+          localStorage.setItem('mp_registered_users_db', JSON.stringify(filtered));
+        } catch(e) {}
+      }
+
+      // 1. URL SE INVITER DETECT KAREIN (?ref=usman ya /register/usman)
+      const urlParams = new URLSearchParams(window.location.search);
+      let detectedRef = urlParams.get('ref');
+      
+      if (!detectedRef) {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const regIdx = pathSegments.indexOf('register');
+        if (regIdx !== -1 && pathSegments[regIdx + 1]) {
+          detectedRef = pathSegments[regIdx + 1];
+        }
+      }
+
+      if (detectedRef) {
+        state.refBy = detectedRef.toLowerCase().replace(/[^a-z0-9_]/g, '');
+        localStorage.setItem('mp_refby', state.refBy);
+      } else if (!state.refBy) {
+        state.refBy = 'usman';
+        localStorage.setItem('mp_refby', state.refBy);
+      }
+
+      const refInput = document.getElementById('reg-refby');
+      if (refInput) refInput.value = state.refBy;
+
+      // 2. CHECK LOGIN STATUS
+      if (!state.isLoggedIn || !state.username) {
+        showAuthScreen();
+      } else {
+        hideAuthScreen();
+        updateUI();
+      }
+
+      if (state.isAdmin) {
+        const adminBadge = document.getElementById('admin-badge');
+        if (adminBadge) adminBadge.classList.remove('hidden');
+        const adminMenuBtn = document.getElementById('admin-menu-btn');
+        if (adminMenuBtn) adminMenuBtn.classList.remove('hidden');
+      }
+
+      renderPlans();
+      renderActivePlans();
+      renderAdminUsersList();
+      startTimer();
+    };
+
+    function showAuthScreen() {
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function hideAuthScreen() {
+      document.getElementById('auth-screen').classList.add('hidden');
+    }
+
+    function switchAuthMode(mode) {
+      const regForm = document.getElementById('form-register');
+      const loginForm = document.getElementById('form-login');
+      const tabReg = document.getElementById('auth-tab-register');
+      const tabLogin = document.getElementById('auth-tab-login');
+
+      if (mode === 'register') {
+        regForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        tabReg.className = 'py-2.5 text-xs font-black rounded-xl bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 shadow-md transition-all duration-300 flex items-center justify-center gap-1.5';
+        tabLogin.className = 'py-2.5 text-xs font-black rounded-xl text-stone-600 transition-all duration-300 hover:text-stone-900 flex items-center justify-center gap-1.5';
+      } else {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        tabLogin.className = 'py-2.5 text-xs font-black rounded-xl bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 shadow-md transition-all duration-300 flex items-center justify-center gap-1.5';
+        tabReg.className = 'py-2.5 text-xs font-black rounded-xl text-stone-600 transition-all duration-300 hover:text-stone-900 flex items-center justify-center gap-1.5';
+      }
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ph-bold ph-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'ph-bold ph-eye';
+      }
+    }
+
+    function previewUsernameSlug(val) {
+      const slugPreview = document.getElementById('name-live-preview');
+      if (!val.trim()) {
+        slugPreview.innerText = '';
+        return;
+      }
+      const cleanSlug = val.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      slugPreview.innerText = `@${cleanSlug}`;
+    }
+
+    function quickFillAccount(name, ref) {
+      document.getElementById('reg-name').value = name;
+      document.getElementById('reg-phone').value = '0313-0000000';
+      document.getElementById('reg-refby').value = ref;
+      document.getElementById('reg-password').value = '123456';
+      previewUsernameSlug(name);
+      showToast(`Quick-loaded ${name}'s data. Tap Register!`, 'info');
+    }
+
+    function quickFillAdmin() {
+      document.getElementById('login-identifier').value = 'admin';
+      document.getElementById('login-password').value = 'admin786';
+      showToast('Admin credentials filled. Tap Secure Login!', 'info');
+    }
+
+    function handleForgotPassword() {
+      showToast('Contact official WhatsApp support to reset your password.', 'info');
+      setTimeout(() => {
+        contactAdminSupport();
+      }, 1200);
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('reg-name').value.trim();
+      const phoneInput = document.getElementById('reg-phone').value.trim();
+      const refInput = document.getElementById('reg-refby').value.trim();
+      const passInput = document.getElementById('reg-password').value.trim();
+
+      if (!nameInput) {
+        showToast('Please enter your name!', 'error');
+        return;
+      }
+
+      state.username = nameInput;
+      state.phone = phoneInput;
+      if (refInput) state.refBy = refInput;
+      state.isLoggedIn = true;
+
+      // Format current timestamp
+      const now = new Date();
+      const timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Save user record to Admin Database
+      saveUserToDatabase({
+        name: nameInput,
+        phone: phoneInput,
+        password: passInput,
+        refBy: refInput || 'Direct',
+        balance: 0.00,
+        registeredAt: timeStr
+      });
+
+      localStorage.setItem('mp_user', state.username);
+      localStorage.setItem('mp_phone', state.phone);
+      localStorage.setItem('mp_refby', state.refBy);
+      localStorage.setItem('mp_logged_in', 'true');
+
+      hideAuthScreen();
+      updateUI();
+      showToast(`Welcome ${state.username}! Account created successfully.`, 'success');
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const pass = document.getElementById('login-password').value.trim();
+
+      if (!identifier) {
+        showToast('Please enter your registered name or phone!', 'error');
+        return;
+      }
+
+      // ADMIN AUTH CHECK
+      if (identifier.toLowerCase() === 'admin' && pass === 'admin786') {
+        state.username = 'Master Admin';
+        state.refBy = 'System Master (Owner)';
+        state.isAdmin = true;
+        state.isLoggedIn = true;
+        localStorage.setItem('mp_user', 'Master Admin');
+        localStorage.setItem('mp_refby', 'System Master (Owner)');
+        localStorage.setItem('mp_is_admin', 'true');
+        localStorage.setItem('mp_logged_in', 'true');
+        
+        hideAuthScreen();
+        updateUI();
+        document.getElementById('admin-badge').classList.remove('hidden');
+        const adminMenuBtn = document.getElementById('admin-menu-btn');
+        if (adminMenuBtn) adminMenuBtn.classList.remove('hidden');
+        renderAdminUsersList();
+        showToast('Welcome Boss! Admin Mode Activated 🛡️', 'success');
+        setTimeout(() => openModal('admin-panel-modal'), 800);
+        return;
+      }
+
+      // Check registered database for user details
+      const users = getStoredUsers();
+      const existingUser = users.find(u => u.name.toLowerCase() === identifier.toLowerCase() || u.phone === identifier);
+      
+      if (existingUser) {
+        state.username = existingUser.name;
+        state.phone = existingUser.phone || '';
+        state.refBy = existingUser.refBy || 'Direct';
+        state.balance = existingUser.balance || state.balance;
+      } else {
+        state.username = identifier;
+        // Also register if new
+        const now = new Date();
+        const timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        saveUserToDatabase({
+          name: identifier,
+          phone: 'N/A',
+          password: pass || 'N/A',
+          refBy: state.refBy || 'Direct',
+          balance: state.balance || 0,
+          registeredAt: timeStr
+        });
+      }
+
+      state.isAdmin = false;
+      state.isLoggedIn = true;
+      localStorage.setItem('mp_user', state.username);
+      localStorage.setItem('mp_is_admin', 'false');
+      localStorage.setItem('mp_logged_in', 'true');
+
+      const adminBadge = document.getElementById('admin-badge');
+      if (adminBadge) adminBadge.classList.add('hidden');
+      const adminMenuBtn = document.getElementById('admin-menu-btn');
+      if (adminMenuBtn) adminMenuBtn.classList.add('hidden');
+
+      hideAuthScreen();
+      updateUI();
+      renderAdminUsersList();
+      showToast(`Welcome back, ${state.username}!`, 'success');
+    }
+
+    function openAdminModalDirect() {
+      if (state.isAdmin) {
+        renderAdminUsersList();
+        openModal('admin-panel-modal');
+      } else {
+        showToast('Access Denied! Admin only area.', 'error');
+      }
+    }
+
+    function adminUpdateBalance() {
+      const input = document.getElementById('admin-new-bal');
+      const val = parseFloat(input.value);
+      if (isNaN(val) || val < 0) {
+        showToast('Enter valid balance amount!', 'error');
+        return;
+      }
+      state.balance = val;
+      updateUI();
+      input.value = '';
+      showToast(`Balance updated to Rs. ${val.toLocaleString()}!`, 'success');
+    }
+
+    function adminApproveDeposit(amount, planName) {
+      state.activePlans.push({
+        name: planName,
+        price: amount,
+        daily: amount * 0.05,
+        days: 80
+      });
+      state.totalInvest += amount;
+      state.nextClaimTime = Date.now() + (24 * 3600 * 1000);
+      localStorage.setItem('mp_next_claim', state.nextClaimTime);
+
+      document.getElementById('admin-deposits-list').innerHTML = '<p class="text-[11px] text-emerald-700 font-bold text-center py-2">✓ All pending requests cleared!</p>';
+      document.getElementById('admin-pending-count').innerText = '0 Pending';
+
+      updateUI();
+      renderActivePlans();
+      showToast(`Approved! ${planName} is now active for user.`, 'success');
+    }
+
+    function adminAddBonus(amt) {
+      state.balance += amt;
+      state.referBonus += amt;
+      updateUI();
+      showToast(`+Rs. ${amt} Bonus added!`, 'success');
+    }
+
+    function adminResetAllData() {
+      if (confirm('Are you sure you want to reset all user data back to 0?')) {
+        state.balance = 0;
+        state.totalInvest = 0;
+        state.totalWithdraw = 0;
+        state.referBonus = 0;
+        state.activePlans = [];
+        updateUI();
+        renderActivePlans();
+        showToast('All user stats reset to 0.', 'info');
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('mp_logged_in');
+      localStorage.removeItem('mp_is_admin');
+      state.isLoggedIn = false;
+      state.isAdmin = false;
+      const adminBadge = document.getElementById('admin-badge');
+      if (adminBadge) adminBadge.classList.add('hidden');
+      const adminMenuBtn = document.getElementById('admin-menu-btn');
+      if (adminMenuBtn) adminMenuBtn.classList.add('hidden');
+      toggleSideMenu();
+      showAuthScreen();
+      showToast('Logged out successfully.', 'info');
+    }
+
+    function updateUI() {
+      const activeName = state.username || 'Guest';
+      const cleanSlug = activeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      document.getElementById('header-username').innerText = activeName;
+      document.getElementById('card-username').innerText = activeName;
+      
+      // Admin ya Direct user ke liye 'Ref By' check
+      if (state.isAdmin) {
+        document.getElementById('card-ref-by').innerText = 'Owner / Direct';
+      } else {
+        document.getElementById('card-ref-by').innerText = state.refBy ? state.refBy : 'Direct (No Sponsor)';
+      }
+
+      document.getElementById('referral-link-input').value = `${window.location.origin}${window.location.pathname}?ref=${cleanSlug}`;
+
+      const balDisplay = document.getElementById('display-balance');
+      balDisplay.innerText = state.isMasked ? '••••' : state.balance.toFixed(2);
+
+      document.getElementById('stat-total-invest').innerText = state.totalInvest.toFixed(2) + 'Rs';
+      document.getElementById('stat-total-withdraw').innerText = state.totalWithdraw.toFixed(2) + 'Rs';
+      document.getElementById('stat-refer-bonus').innerText = state.referBonus.toFixed(2) + 'Rs';
+
+      localStorage.setItem('mp_bal', state.balance);
+      localStorage.setItem('mp_tin', state.totalInvest);
+      localStorage.setItem('mp_twi', state.totalWithdraw);
+      localStorage.setItem('mp_refb', state.referBonus);
+      localStorage.setItem('mp_plans', JSON.stringify(state.activePlans));
+    }
+
+    function toggleBalanceVisibility() {
+      state.isMasked = !state.isMasked;
+      document.getElementById('eye-icon').className = state.isMasked ? 'ph-bold ph-eye-slash' : 'ph-bold ph-eye';
+      updateUI();
+    }
+
+    function renderPlans() {
+      const container = document.getElementById('plans-container');
+      container.innerHTML = '';
+      PLANS_CONFIG.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'metro-white-card rounded-2xl p-4 space-y-2.5';
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <h4 class="font-extrabold text-amber-950 text-sm">${p.name}</h4>
+            <span class="text-sm font-black text-amber-900 font-mono">${p.price}Rs</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 bg-amber-50/60 p-2 rounded-xl text-center text-xs">
+            <div><span class="text-[9px] text-stone-500 block">Daily</span><strong class="text-amber-950">+${p.daily}Rs</strong></div>
+            <div><span class="text-[9px] text-stone-500 block">Validity</span><strong class="text-stone-800">${p.duration} Days</strong></div>
+            <div><span class="text-[9px] text-stone-500 block">Total</span><strong class="text-amber-900">${p.total}Rs</strong></div>
+          </div>
+          <button onclick="openDepositForPlan('${p.id}')" class="w-full metro-btn-box py-2 rounded-xl text-xs font-black text-amber-950 active:scale-95 transition">
+            Invest Now
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openDepositForPlan(planId) {
+      const plan = PLANS_CONFIG.find(x => x.id === planId);
+      document.getElementById('dep-card-plan-name').innerText = plan.name;
+      document.getElementById('dep-amount-display').innerText = `Rs. ${plan.price.toLocaleString()}`;
+      document.getElementById('deposit-amount').value = plan.price;
+      openModal('deposit-modal');
+    }
+
+    function handleDepositClick() {
+      const el = document.getElementById('plans-tab');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      showToast('Select a VIP plan to proceed with deposit', 'info');
+    }
+
+    function handleWithdrawClick() {
+      if (state.activePlans.length === 0) {
+        openModal('plan-required-modal');
+      } else {
+        openModal('withdraw-modal');
+      }
+    }
+
+    function selectDepositMethod(m) {
+      const ep = document.getElementById('dep-method-easypaisa');
+      const jc = document.getElementById('dep-method-jazzcash');
+      const title = document.getElementById('dep-acc-title');
+      const num = document.getElementById('dep-acc-number');
+
+      if (m === 'easypaisa') {
+        ep.className = 'p-2.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 flex flex-col items-center gap-1';
+        jc.className = 'p-2.5 rounded-2xl border border-stone-300 bg-stone-50 text-stone-700 flex flex-col items-center gap-1';
+        title.innerText = 'Abdul Moiz Khan (Easypaisa)';
+        num.innerText = '0313-9371815';
+      } else {
+        jc.className = 'p-2.5 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-950 flex flex-col items-center gap-1';
+        ep.className = 'p-2.5 rounded-2xl border border-stone-300 bg-stone-50 text-stone-700 flex flex-col items-center gap-1';
+        title.innerText = 'Abdul Moiz Khan (JazzCash)';
+        num.innerText = '0313-9371815';
+      }
+    }
+
+    function handleDepositSubmit(e) {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('deposit-amount').value);
+      const planName = document.getElementById('dep-card-plan-name').innerText;
+
+      state.activePlans.push({
+        name: planName,
+        price: amount,
+        daily: amount * 0.05,
+        days: 80
+      });
+      state.totalInvest += amount;
+      state.nextClaimTime = Date.now() + (24 * 3600 * 1000);
+      localStorage.setItem('mp_next_claim', state.nextClaimTime);
+
+      closeModal('deposit-modal');
+      updateUI();
+      renderActivePlans();
+      showToast('Deposit request submitted! Plan is now active.', 'success');
+    }
+
+    function handleWithdrawSubmit(e) {
+      e.preventDefault();
+      const amt = parseFloat(document.getElementById('withdraw-amount').value);
+      if (amt > state.balance) {
+        showToast('Insufficient wallet balance!', 'error');
+        return;
+      }
+      state.balance -= amt;
+      state.totalWithdraw += amt;
+      closeModal('withdraw-modal');
+      updateUI();
+      showToast(`Withdrawal of Rs. ${amt} submitted successfully!`, 'success');
+    }
+
+    function renderActivePlans() {
+      const container = document.getElementById('my-plans-container');
+      container.innerHTML = '';
+      if (state.activePlans.length === 0) {
+        container.innerHTML = '<p class="text-xs text-stone-500 text-center py-4">No active plans.</p>';
+        return;
+      }
+      state.activePlans.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'metro-white-card p-3 rounded-2xl flex justify-between items-center text-xs';
+        d.innerHTML = `
+          <div>
+            <strong class="text-amber-950 font-bold block">${p.name}</strong>
+            <span class="text-[10px] text-stone-500">+${p.daily}Rs/day (80 Days)</span>
+          </div>
+          <span class="text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">Active</span>
+        `;
+        container.appendChild(d);
+      });
+    }
+
+    function startTimer() {
+      setInterval(() => {
+        const h = document.getElementById('timer-hours');
+        const m = document.getElementById('timer-minutes');
+        const s = document.getElementById('timer-seconds');
+        const badge = document.getElementById('clock-status-badge');
+
+        if (!h || !m || !s || !badge) return;
+
+        if (state.activePlans.length === 0) {
+          h.innerText = '00'; m.innerText = '00'; s.innerText = '00';
+          badge.innerText = 'No Active Plan';
+          return;
+        }
+
+        const diff = state.nextClaimTime - Date.now();
+        if (diff <= 0) {
+          h.innerText = '00'; m.innerText = '00'; s.innerText = '00';
+          badge.innerText = 'Profit Ready!';
+        } else {
+          const hrs = Math.floor(diff / (1000 * 3600));
+          const mins = Math.floor((diff % (1000 * 3600)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+          h.innerText = String(hrs).padStart(2, '0');
+          m.innerText = String(mins).padStart(2, '0');
+          s.innerText = String(secs).padStart(2, '0');
+          badge.innerText = 'Timer Running';
+        }
+      }, 1000);
+    }
+
+    function claimDailyReward() {
+      if (state.activePlans.length === 0) {
+        showToast('Activate a plan first!', 'warning');
+        return;
+      }
+      const totalDaily = state.activePlans.reduce((sum, p) => sum + p.daily, 0);
+      state.balance += totalDaily;
+      state.nextClaimTime = Date.now() + (24 * 3600 * 1000);
+      localStorage.setItem('mp_next_claim', state.nextClaimTime);
+      updateUI();
+      showToast(`+${totalDaily}Rs Daily Profit credited to your wallet!`, 'success');
+    }
+
+    function openClockDetailsModal() {
+      const container = document.getElementById('clock-modal-content');
+      if (state.activePlans.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 space-y-2">
+            <span class="text-4xl">📭</span>
+            <p class="text-xs text-stone-500 font-bold">No Active Investment Record Found!</p>
+            <button onclick="closeModal('clock-details-modal'); switchTab('plans-tab');" class="metro-btn-box px-3 py-1.5 rounded-xl text-xs font-black text-amber-950">
+              Explore Plans
+            </button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '';
+        state.activePlans.forEach(p => {
+          container.innerHTML += `
+            <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-xs">
+              <strong class="text-amber-950 block">${p.name}</strong>
+              <div class="flex justify-between text-[11px] text-stone-600 mt-1">
+                <span>Daily: +${p.daily}Rs</span>
+                <span>Tenure: 80 Days</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+      openModal('clock-details-modal');
+    }
+
+    function switchTab(id) {
+      ['plans-tab', 'myplans-tab', 'referral-tab', 'history-tab'].forEach(t => {
+        const el = document.getElementById(t);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(id);
+      if (target) target.classList.remove('hidden');
+    }
+
+    function promptSwitchUser() {
+      document.getElementById('input-modal-username').value = state.username;
+      document.getElementById('input-modal-refby').value = state.refBy;
+      openModal('user-profile-modal');
+    }
+
+    function handleUserSave(e) {
+      e.preventDefault();
+      const nameVal = document.getElementById('input-modal-username').value.trim();
+      const refVal = document.getElementById('input-modal-refby').value.trim();
+      if (!nameVal) return;
+
+      state.username = nameVal;
+      if (refVal) state.refBy = refVal;
+
+      localStorage.setItem('mp_user', state.username);
+      localStorage.setItem('mp_refby', state.refBy);
+
+      closeModal('user-profile-modal');
+      updateUI();
+      showToast(`Welcome ${state.username}!`, 'success');
+    }
+
+    function copyReferralLink() {
+      const input = document.getElementById('referral-link-input');
+      copyToClipboard(input.value);
+    }
+
+    function copyToClipboard(val) {
+      const el = document.createElement('textarea');
+      el.value = val;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast('Copied to clipboard!', 'info');
+    }
+
+    function toggleSideMenu() {
+      const d = document.getElementById('side-menu-drawer');
+      const o = document.getElementById('side-menu-overlay');
+      d.classList.toggle('-translate-x-full');
+      o.classList.toggle('hidden');
+    }
+
+    function menuAction(a) {
+      toggleSideMenu();
+      if (a === 'dashboard' || a === 'buy-plans') switchTab('plans-tab');
+      if (a === 'deposit') handleDepositClick();
+      if (a === 'withdraw') handleWithdrawClick();
+      if (a === 'my-plans') switchTab('myplans-tab');
+      if (a === 'team') switchTab('referral-tab');
+      if (a === 'history') switchTab('history-tab');
+      if (a === 'install-app') showToast('Downloading APK file...', 'info');
+    }
+
+    function contactAdminSupport() {
+      window.open('https://wa.me/923306848425?text=Hello%20Admin%2C%20I%20need%20support', '_blank');
+    }
+    function joinOfficialChannel() {
+      window.open('https://t.me/PakInvestVIPOfficial', '_blank');
+    }
+    function openVerificationModal(type) {
+      showToast(type === 'fbr' ? 'FBR NTN: 9482014-9 (Active Filer Verified)' : 'SECP Corporate Registration No: 0218849-PK', 'info');
+    }
+
+    function openModal(id) { 
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden'); 
+    }
+    function closeModal(id) { 
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden'); 
+    }
+
+    function showToast(msg, type) {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'bg-stone-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 transition-all';
+      t.innerText = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+  </script>
+</body>
+</html>
